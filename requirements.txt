@@ -1,4 +1,4 @@
 requests
 selenium
-pandas
 webdriver-manager
+flask

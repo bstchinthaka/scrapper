@@ -7,22 +7,29 @@ from selenium.webdriver.common.by import By
 import time
 import json
 
-CHROMEDRIVER_PATH = "F:/bst/hackthon/scrapper/driver/chromedriver.exe"
-
 
 class Tripadvisor:
-    def __init__(self):
-        pass
+    def __init__(self, uuid, query):
+        self.uuid = uuid
+        self.query = query
 
     def get_text(self, div, xpath):
         a = div.find_element_by_xpath(xpath)
         return a.text
 
-    def get_search_list(self, text):
+    def get_search_list(self):
+        text = self.query
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+
         url = "https://www.tripadvisor.com/Hotels"
-        options = webdriver.ChromeOptions()
-        options.headless = True
-        driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+        # options = webdriver.ChromeOptions()
+        # options.headless = True
+        #driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
+        driver = webdriver.Chrome(chrome_options=chrome_options)
         driver.get(url)
         data = []
 
@@ -84,19 +91,21 @@ class Tripadvisor:
                 driver.get(current_url.replace('Reviews-', 'Reviews-or' + str(5 * i) + '-'))
 
         except Exception as e:
-            print(e)
-
+            print(self.uuid, e)
         else:
-            print("ela ela")
-
+            print(self.uuid, "No errors")
         finally:
             driver.close()
-            print(json.dumps(data))
+            print(self.uuid, json.dumps(data))
+            with open("data/" + self.uuid + ".json", 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
 
+    def start_search(self):
+        self.get_search_list()
 
-s = Search()
-s.get_search_list("Amaya lake dambulla")
-
-#s.get_search_list("Cinnamon lodge Habarana")
-
-#s.get_search_list("Dubai palm hotel")
+# s = Search()
+# s.get_search_list("Amaya lake dambulla")
+#
+# # s.get_search_list("Cinnamon lodge Habarana")
+#
+# # s.get_search_list("Dubai palm hotel")
