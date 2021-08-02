@@ -1,8 +1,10 @@
+
 from flask import Flask, jsonify, request
 from scrp.tripadvisor import Tripadvisor
 import json
 
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 
 
 @app.route('/', methods=['GET'])
