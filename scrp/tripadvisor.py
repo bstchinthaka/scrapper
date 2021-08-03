@@ -21,7 +21,7 @@ class Tripadvisor:
     def get_search_list(self):
         text = self.query
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--headless')
+        # chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--disable-dev-shm-usage')
@@ -29,8 +29,8 @@ class Tripadvisor:
         url = "https://www.tripadvisor.com/Hotels"
         # options = webdriver.ChromeOptions()
         # options.headless = True
-        # driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
-        driver = webdriver.Chrome(chrome_options=chrome_options)
+        driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
+        # driver = webdriver.Chrome(chrome_options=chrome_options)
         driver.get(url)
         data = []
 
@@ -57,52 +57,60 @@ class Tripadvisor:
             w = WebDriverWait(driver, 8)
             w.until(EC.presence_of_element_located((By.XPATH, rank_xpath)))
             rank = driver.find_element_by_xpath(rank_xpath)
+            rank_data = rank.text
             # print(rank.text)
 
             # print(driver.current_url)
 
             current_url = driver.current_url
 
-            for i in range(5):
-                # get all review card divs  HR_CC_CARD
-                review_card_xpath = "//div[@data-test-target='HR_CC_CARD']"
-                review_cards = driver.find_elements_by_xpath(review_card_xpath)
-                # print(review_cards)
-                for review_card in review_cards:
-                    divs = review_card.find_elements_by_xpath("div")
-                    # print(len(divs))
-                    if len(divs) == 2:  # no images
-                        name = self.get_text(divs[0], "div/div[2]")
-                        title = self.get_text(divs[1], "div/a/span/span")
-                        review = self.get_text(divs[1], "div[3]/div[1]/div[1]/q/span")
-                    elif len(divs) == 3:  # has images
-                        name = self.get_text(divs[0], "div/div[2]")
-                        title = self.get_text(divs[2], "div/a/span/span")
-                        review = self.get_text(divs[2], "div[3]/div[1]/div[1]/q/span")
-                    else:
-                        print("ignore review card")
-                    item = {
-                        "name": name.split('wrote a review')[0].strip(),
-                        "review_date": name.split('wrote a review')[1].strip(),
-                        "title": title,
-                        "review": review,
+            for i in range(50):
+                try:
+                    # get all review card divs  HR_CC_CARD
+                    review_card_xpath = "//div[@data-test-target='HR_CC_CARD']"
+                    review_cards = driver.find_elements_by_xpath(review_card_xpath)
+                    # print(review_cards)
+                    for review_card in review_cards:
+                        divs = review_card.find_elements_by_xpath("div")
+                        # print(len(divs))
+                        if len(divs) == 2:  # no images
+                            name = self.get_text(divs[0], "div/div[2]")
+                            title = self.get_text(divs[1], "div/a/span/span")
+                            review = self.get_text(divs[1], "div[3]/div[1]/div[1]/q/span")
+                        elif len(divs) == 3:  # has images
+                            name = self.get_text(divs[0], "div/div[2]")
+                            title = self.get_text(divs[2], "div/a/span/span")
+                            review = self.get_text(divs[2], "div[3]/div[1]/div[1]/q/span")
+                        else:
+                            print("ignore review card")
+                        item = {
+                            "name": name.split('wrote a review')[0].strip(),
+                            "review_date": name.split('wrote a review')[1].strip(),
+                            "title": title,
+                            "review": review,
 
-                    }
-                    data.append(item)
-                driver.get(current_url.replace('Reviews-', 'Reviews-or' + str(5 * i) + '-'))
+                        }
+                        data.append(item)
+                except Exception as e:
+                    print("EEEEEEEEEEEEE",e)
+                s = current_url.replace('Reviews-', 'Reviews-or' + str(5 * i) + '-')
+                print(s)
+                driver.get(s)
+                w = WebDriverWait(driver, 8)
+                w.until(EC.presence_of_element_located((By.XPATH, rank_xpath)))
 
         except Exception as e:
             print(self.uuid, e)
         else:
             print(self.uuid, "No errors")
         finally:
-            driver.close()
-            output = {"source": self.source, "reviews": data, "rating": rank.text}
+            # driver.close()
             print(self.uuid, json.dumps(data))
+            output = {"source": self.source, "reviews": data, "rating": rank_data}
+
             with open("data/" + self.uuid + "_" + self.source + ".json", 'w', encoding='utf-8') as f:
                 json.dump(output, f, ensure_ascii=False, indent=4)
+            driver.close()
 
     def start_search(self):
         self.get_search_list()
-
-
