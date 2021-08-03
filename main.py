@@ -15,7 +15,7 @@ def init_job(uuid, query):
 
 @app.route('/', methods=['GET'])
 def welcome():
-    return jsonify({"Message": "අපි තමයි හොදටම කරේ"})
+    return "අපි තමයි හොදටම කරේ"
 
 
 @app.route('/init', methods=['GET'])
