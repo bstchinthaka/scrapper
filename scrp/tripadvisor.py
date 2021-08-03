@@ -12,6 +12,7 @@ class Tripadvisor:
     def __init__(self, uuid, query):
         self.uuid = uuid
         self.query = query
+        self.source = "tripadvisor"
 
     def get_text(self, div, xpath):
         a = div.find_element_by_xpath(xpath)
@@ -28,7 +29,7 @@ class Tripadvisor:
         url = "https://www.tripadvisor.com/Hotels"
         # options = webdriver.ChromeOptions()
         # options.headless = True
-        #driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
+        # driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
         driver = webdriver.Chrome(chrome_options=chrome_options)
         driver.get(url)
         data = []
@@ -84,7 +85,7 @@ class Tripadvisor:
                         "name": name.split('wrote a review')[0].strip(),
                         "review_date": name.split('wrote a review')[1].strip(),
                         "title": title,
-                        "review": review
+                        "review": review,
 
                     }
                     data.append(item)
@@ -96,9 +97,10 @@ class Tripadvisor:
             print(self.uuid, "No errors")
         finally:
             driver.close()
+            output = {"source": self.source, "reviews": data, "rating": rank.text}
             print(self.uuid, json.dumps(data))
-            with open("data/" + self.uuid + ".json", 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, indent=4)
+            with open("data/" + self.uuid + "_" + self.source + ".json", 'w', encoding='utf-8') as f:
+                json.dump(output, f, ensure_ascii=False, indent=4)
 
     def start_search(self):
         self.get_search_list()
