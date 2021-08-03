@@ -105,9 +105,4 @@ class Tripadvisor:
     def start_search(self):
         self.get_search_list()
 
-# s = Search()
-# s.get_search_list("Amaya lake dambulla")
-#
-# # s.get_search_list("Cinnamon lodge Habarana")
-#
-# # s.get_search_list("Dubai palm hotel")
+

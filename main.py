@@ -2,9 +2,15 @@ from flask import Flask, jsonify, request
 from scrp.tripadvisor import Tripadvisor
 import json
 import glob
+import multiprocessing
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
+
+
+def init_job(uuid, query):
+    tr = Tripadvisor(uuid, query)
+    tr.get_search_list()
 
 
 @app.route('/', methods=['GET'])
@@ -14,10 +20,11 @@ def welcome():
 
 @app.route('/init', methods=['GET'])
 def init():
+    print("dfd")
     uuid = request.args.get('uuid')
     query = request.args.get('query')
-    tr = Tripadvisor(uuid, query)
-    tr.get_search_list()
+    p = multiprocessing.Process(target=init_job, args=(uuid, query,))
+    p.start()
     return jsonify({"uuid": uuid, "query": query, "status": "started"})
 
 
@@ -39,14 +46,6 @@ def get_data():
     else:
         return jsonify({"status": "in progress", "result": []})
 
-    # try:
-    #     with open('data/' + str(uuid) + '.json', encoding="utf8") as f:
-    #         data = json.load(f)
-    #     return jsonify({"status": "completed", "result": data})
-    # except Exception as e:
-    #     print(uuid, e)
-    #     return jsonify({"status": "in progress", "result": []})
-
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
