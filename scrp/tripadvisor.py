@@ -21,7 +21,7 @@ class Tripadvisor:
     def get_search_list(self):
         text = self.query
         chrome_options = webdriver.ChromeOptions()
-        # chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--disable-dev-shm-usage')
@@ -29,8 +29,8 @@ class Tripadvisor:
         url = "https://www.tripadvisor.com/Hotels"
         # options = webdriver.ChromeOptions()
         # options.headless = True
-        driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
-        # driver = webdriver.Chrome(chrome_options=chrome_options)
+        # driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
+        driver = webdriver.Chrome(chrome_options=chrome_options)
         driver.get(url)
         data = []
 
