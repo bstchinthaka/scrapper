@@ -64,7 +64,7 @@ class Tripadvisor:
 
             current_url = driver.current_url
 
-            for i in range(50):
+            for i in range(2):
                 try:
                     # get all review card divs  HR_CC_CARD
                     review_card_xpath = "//div[@data-test-target='HR_CC_CARD']"
